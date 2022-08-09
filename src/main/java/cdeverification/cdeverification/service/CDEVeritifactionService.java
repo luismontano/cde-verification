@@ -65,9 +65,24 @@ public class CDEVeritifactionService implements CDEVerification{
         Map<String, Set<String>> WIPPathsByAreaPath = getCorrectPaths(WIPPath);
         Map<String, Set<String>> SHDPathsByAreaPath = getCorrectPaths(SHDPath);
         Map<String, Set<String>> PUBPathsByAreaPath = getCorrectPaths(PUBPath);
-        int total = WIPPathsByAreaPath.values().stream().map(s -> s != null ? s.size() : 0).reduce(0, Integer::sum)
-                + SHDPathsByAreaPath.values().stream().map(s -> s != null ? s.size() : 0).reduce(0, Integer::sum)
-                + PUBPathsByAreaPath.values().stream().map(s -> s != null ? s.size() : 0).reduce(0, Integer::sum);
+        Map<String, Integer> totalsByArea = new LinkedHashMap<>();
+
+        WIPPathsByAreaPath.entrySet().stream().forEach(e -> {
+            int total = totalsByArea.get(e.getKey()) != null ? totalsByArea.get(e.getKey()) : 0;
+            totalsByArea.put(e.getKey(), total + e.getValue().size());
+        });
+
+        SHDPathsByAreaPath.entrySet().stream().forEach(e -> {
+            int total = totalsByArea.get(e.getKey()) != null ? totalsByArea.get(e.getKey()) : 0;
+            totalsByArea.put(e.getKey(), total + e.getValue().size());
+        });
+
+        PUBPathsByAreaPath.entrySet().stream().forEach(e -> {
+            int total = totalsByArea.get(e.getKey()) != null ? totalsByArea.get(e.getKey()) : 0;
+            totalsByArea.put(e.getKey(), total + e.getValue().size());
+        });
+
+        int total = totalsByArea.values().stream().reduce(0, Integer::sum);
         logger.info("3. Verificando trazabilidad de archivos de [{}] desde [{}]:", PUB, SHD);
         logPaths(PUB, PUBPath, PUBPathsByAreaPath, SHDPathsByAreaPath);
 
@@ -90,6 +105,7 @@ public class CDEVeritifactionService implements CDEVerification{
         logPaths(PUBPathsForTables, SHDPathsForTables);
 
         logger.info("Total de Archivos Correctos: {}", total);
+        totalsByArea.entrySet().stream().forEach(e -> logger.info("\tTotal de Archivos Correctos {}: {}", e.getKey(), e.getValue()));
     }
 
     private Map<String, Set<String>> getCorrectPaths(String folderPath) throws IOException {
