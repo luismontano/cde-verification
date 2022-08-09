@@ -51,7 +51,7 @@ public class CDEVeritifactionService implements CDEVerification{
 
         logger.info("1. Información CDE:");
         logger.info("\tRuta CDE: {}", CDEPath);
-        pathByFolder.forEach((folder, path) -> logger.info("\tRuta {}: {}", folder, WIPPath));
+        pathByFolder.forEach((folder, path) -> logger.info("\tRuta {}: {}", folder, path));
 
         logger.info("2. Verificando si existen archivos con errores:");
         pathByFolder.forEach((folder, path) -> {
